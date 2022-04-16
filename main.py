@@ -9,14 +9,17 @@ from aiogram.types import InputFile
 
 
 API_TOKEN = '5255045109:AAEvvHJ_RpultbDrlRf4YRpJTuMuYX3au2o'
-bot = Bot(token=API_TOKEN, parse_mode=types.ParseMode.HTML)
-dp = Dispatcher(bot)
+import telebot
+bot = telebot.TeleBot(API_TOKEN, parse_mode=None)
 
-
-@dp.message_handler()
-async def process_start_command(message: types.Message):
+@bot.message_handler(func=lambda message: True)
+def send_welcome(message):
     if message.text == 'start_scrap':
-        await message.answer("Скрапинг начат, ждите файл (не пишите это сообщение еще раз)")
+        bot.reply_to(message, "Скрапинг начат, ждите файл (не пишите это сообщение еще раз)")
+        file = open("EMAILS.csv", "rb")
+        bot.send_document(message.chat.id, file)
+        file.close()
+
         app_urls = []
         emails = []
         proxy_list = str(read_proxy_file()).split('\n')
@@ -41,17 +44,17 @@ async def process_start_command(message: types.Message):
                 print("Disconnect server. COUNT_OF_MISTAKE: ", COUNT_OF_MAX_MISTAKE)
                 MISTAKEN_APP_URL.append(url)
 
-        # async def main():
-        for page in range(round(len(app_urls) / PAGINATION)):
-            tasks = []
-            from_ = page * PAGINATION
-            to_ = (page+1) * PAGINATION
-            for app_url in list(app_urls)[from_:to_:]:
-                tasks.append(asyncio.create_task(get_html_of_app_page(app_url)))
-            await asyncio.gather(*tasks)
-            time.sleep(25)
+        async def main():
+            for page in range(round(len(app_urls) / PAGINATION)):
+                tasks = []
+                from_ = page * PAGINATION
+                to_ = (page+1) * PAGINATION
+                for app_url in list(app_urls)[from_:to_:]:
+                    tasks.append(asyncio.create_task(get_html_of_app_page(app_url)))
+                await asyncio.gather(*tasks)
+                time.sleep(25)
 
-        # asyncio.run(main())
+        asyncio.run(main())
         print("Всего emails: ", len(set(emails)), " Всего ошибок было: ", len(MISTAKEN_APP_URL))
         emails = list(set(emails))
         with open("EMAILS.csv", "w") as file:
@@ -60,7 +63,7 @@ async def process_start_command(message: types.Message):
             wr.writerows(emails_row)
         
         file = open("EMAILS.csv", "rb")
-        await message.reply_document(file)
+        bot.send_document(message.chat.id, file)
         file.close()
 
-executor.start_polling(dp, skip_updates=True)
+bot.infinity_polling()

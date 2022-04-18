@@ -34,7 +34,7 @@ def get_urls_to_parse_from_main_page(urls_to_parse, proxies):
 
 
 def get_app_urls(app_urls, urls_to_parse, proxies):
-    for url_to_parse in urls_to_parse:
+    for url_to_parse in urls_to_parse[:2:]:
         print("Парсим такую ссылку ", url_to_parse, sep="   ---->    ")
         html = requests.get(url_to_parse, proxies=proxies)
         soup = BeautifulSoup(html.content, 'html.parser')

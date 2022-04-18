@@ -1,6 +1,6 @@
 import time
 from services import *
-import asyncio
+# import asyncio
 import aiohttp
 import csv
 

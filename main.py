@@ -60,9 +60,3 @@ while True:
         wr.writerows(emails_row)
 
     time.sleep(2*60)
-#
-#         file = open("EMAILS.csv", "rb")
-#         bot.send_document(message.chat.id, file)
-#         file.close()
-#
-# bot.infinity_polling()
